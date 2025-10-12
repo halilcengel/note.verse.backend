@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { errorHandler } from './middleware/errorHandler';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -31,6 +32,8 @@ app.use('*', (req, res) => {
     message: 'Route not found',
   });
 });
+
+app.use(errorHandler);
 
 process.on('SIGINT', async () => {
   console.log('Shutting down gracefully...');
