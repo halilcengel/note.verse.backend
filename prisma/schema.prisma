@@ -7,13 +7,196 @@ datasource db {
   url      = "file:dev.db"
 }
 
+// ========================================
+// USER & AUTHENTICATION
+// ========================================
+
 model User {
   id        String    @id @default(cuid())
   email     String    @unique
+  name      String
+  role      String    // "teacher", "student", "admin"
+  password  String
+  tcNo      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  tcNo      String    @unique 
+
+  // Relationships
+  teacher   Teacher?
+  student   Student?
 
   @@index([email])
-  @@index([tcNo]) 
+  @@index([tcNo])
+}
+
+// ========================================
+// ACADEMIC ENTITIES
+// ========================================
+
+model Department {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relationships
+  teachers  Teacher[]
+  courses   Course[]
+  documents Document[]
+}
+
+model Teacher {
+  id            String   @id @default(cuid())
+  title         String   // "Prof.", "Assoc. Prof.", "Dr.", etc.
+  departmentId  String
+  officeNumber  String?
+  phone         String?
+  userId        String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department      Department       @relation(fields: [departmentId], references: [id])
+  courseOfferings CourseOffering[]
+  documents       Document[]
+
+  @@index([departmentId])
+  @@index([userId])
+}
+
+model Student {
+  id             String   @id @default(cuid())
+  studentNumber  String   @unique
+  gpa            Float?   @default(0.0)
+  enrollmentYear Int
+  userId         String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments Enrollment[]
+
+  @@index([studentNumber])
+  @@index([userId])
+}
+
+// ========================================
+// COURSE MANAGEMENT
+// ========================================
+
+model Course {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  name         String
+  credits      Int
+  departmentId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  department      Department       @relation(fields: [departmentId], references: [id])
+  courseOfferings CourseOffering[]
+
+  @@index([code])
+  @@index([departmentId])
+}
+
+model CourseOffering {
+  id           String   @id @default(cuid())
+  courseId     String
+  teacherId    String
+  semester     String   // "Fall", "Spring", "Summer"
+  academicYear String   // "2024-2025"
+  quota        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  course      Course       @relation(fields: [courseId], references: [id])
+  teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+  schedules   Schedule[]
+
+  @@index([courseId])
+  @@index([teacherId])
+  @@index([semester, academicYear])
+}
+
+model Schedule {
+  id               String   @id @default(cuid())
+  courseOfferingId String
+  dayOfWeek        String   // "Monday", "Tuesday", etc.
+  startTime        String   // "09:00"
+  endTime          String   // "10:30"
+  classroom        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relationships
+  courseOffering CourseOffering @relation(fields: [courseOfferingId], references: [id], onDelete: Cascade)
+
+  @@index([courseOfferingId])
+}
+
+// ========================================
+// ENROLLMENT & GRADING
+// ========================================
+
+model Enrollment {
+  id               String   @id @default(cuid())
+  studentId        String
+  courseOfferingId String
+  enrollmentDate   DateTime @default(now())
+  status           String   @default("active") // "active", "dropped", "completed"
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relationships
+  student        Student        @relation(fields: [studentId], references: [id])
+  courseOffering CourseOffering @relation(fields: [courseOfferingId], references: [id])
+  grades         Grade[]
+
+  @@unique([studentId, courseOfferingId])
+  @@index([studentId])
+  @@index([courseOfferingId])
+}
+
+model Grade {
+  id                   String   @id @default(cuid())
+  enrollmentId         String
+  midtermScore         Float?
+  finalScore           Float?
+  attendancePercentage Float?   @default(0.0)
+  letterGrade          String?  // "AA", "BA", "BB", etc.
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relationships
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId])
+  @@index([enrollmentId])
+}
+
+// ========================================
+// DOCUMENT MANAGEMENT
+// ========================================
+
+model Document {
+  id           String   @id @default(cuid())
+  fileName     String
+  fileData     Bytes    // BLOB storage
+  departmentId String?
+  teacherId    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  department Department? @relation(fields: [departmentId], references: [id])
+  teacher    Teacher?    @relation(fields: [teacherId], references: [id])
+
+  @@index([departmentId])
+  @@index([teacherId])
 }
