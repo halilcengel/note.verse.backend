@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerOptions from './swagger';
 import swaggerUi from 'swagger-ui-express';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/users', userRoutes);
 
 app.use('*', (req, res) => {
   res.status(404).json({

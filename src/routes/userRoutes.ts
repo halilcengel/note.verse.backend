@@ -1,6 +1,7 @@
 import { createUser, deleteUser, getUserById, getUsers, updateUser } from "../controllers/userController";
 import { createUserSchema, updateUserSchema } from "../schemas/userSchema";
 
+import { asyncHandler } from "../middleware/asyncHandler";
 import express from "express";
 import { validate } from "../middleware/validation";
 
@@ -30,7 +31,7 @@ const router = express.Router();
  *         description: Internal server error
  */
 
-router.post("/", validate(createUserSchema), createUser);
+router.post("/", validate(createUserSchema), asyncHandler(createUser));
 
 /**
  * @swagger
@@ -72,7 +73,7 @@ router.post("/", validate(createUserSchema), createUser);
  *       500:
  *         description: Internal server error
  */
-router.get("/", getUsers);
+router.get("/", asyncHandler(getUsers));
 
 /**
  * @swagger
@@ -94,7 +95,7 @@ router.get("/", getUsers);
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", getUserById);
+router.get("/:id", asyncHandler(getUserById));
 
 /**
  * @swagger
@@ -127,7 +128,7 @@ router.get("/:id", getUserById);
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", validate(updateUserSchema), updateUser);
+router.put("/:id", validate(updateUserSchema), asyncHandler(updateUser));
 
 /**
  * @swagger
@@ -149,7 +150,7 @@ router.put("/:id", validate(updateUserSchema), updateUser);
  *       500:
  *         description: Internal server error
  */
-router.delete("/:id", deleteUser);
+router.delete("/:id", asyncHandler(deleteUser));
 
 export default router;
 
