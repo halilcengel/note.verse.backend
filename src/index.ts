@@ -9,11 +9,12 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerOptions from './swagger';
 import swaggerUi from 'swagger-ui-express';
 import userRoutes from './routes/userRoutes';
+import teacherRoutes from './routes/teacherRoutes';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3008;
+const PORT = process.env.PORT || 3000;
 
 export const prisma = new PrismaClient();
 
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/users', userRoutes);
+app.use('/api/teachers', teacherRoutes);
 
 app.use('*', (req, res) => {
   res.status(404).json({
