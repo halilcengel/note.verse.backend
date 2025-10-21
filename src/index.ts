@@ -10,6 +10,7 @@ import swaggerOptions from './swagger';
 import swaggerUi from 'swagger-ui-express';
 import userRoutes from './routes/userRoutes';
 import teacherRoutes from './routes/teacherRoutes';
+import studentRoutes from './routes/studentRoutes';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/users', userRoutes);
 app.use('/api/teachers', teacherRoutes);
+app.use('/api/students', studentRoutes)
 
 app.use('*', (req, res) => {
   res.status(404).json({
