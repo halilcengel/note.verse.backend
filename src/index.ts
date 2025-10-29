@@ -12,6 +12,7 @@ import userRoutes from './routes/userRoutes';
 import teacherRoutes from './routes/teacherRoutes';
 import studentRoutes from './routes/studentRoutes';
 import departmentRoutes from './routes/departmentRoutes'
+import courseRoutes from './routes/courseRoutes'
 dotenv.config();
 
 const app = express();
@@ -32,11 +33,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/students', studentRoutes)
 app.use('/api/departments', departmentRoutes)
+app.use('/api/courses', courseRoutes)
 
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
-    message: 'Route not found',
+    message: 'Route not found'
   });
 });
 
