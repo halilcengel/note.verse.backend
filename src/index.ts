@@ -11,7 +11,7 @@ import swaggerUi from 'swagger-ui-express';
 import userRoutes from './routes/userRoutes';
 import teacherRoutes from './routes/teacherRoutes';
 import studentRoutes from './routes/studentRoutes';
-
+import departmentRoutes from './routes/departmentRoutes'
 dotenv.config();
 
 const app = express();
@@ -31,6 +31,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/users', userRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/students', studentRoutes)
+app.use('/api/departments', departmentRoutes)
 
 app.use('*', (req, res) => {
   res.status(404).json({
