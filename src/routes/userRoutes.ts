@@ -20,6 +20,9 @@ const router = express.Router();
  *           schema:
  *             $ref: '#/components/schemas/User'
  *           example:
+ *             name: "jane"
+ *             role: "student"
+ *             password: "studentPassword"
  *             email: "jane.doe@example.com"
  *             tcNo: "12345678901"
  *     responses:

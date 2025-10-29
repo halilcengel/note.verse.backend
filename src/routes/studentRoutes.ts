@@ -21,6 +21,7 @@ const router = express.Router();
  *           example:
  *             studentNumber: "20250001"
  *             enrollmentYear: 2025
+ *             gpa: 3.32
  *             userId: "some-user-id"
  *     responses:
  *       201:
