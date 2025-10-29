@@ -1,47 +1,44 @@
-import { createUser, deleteUser, getUserById, getUsers, updateUser } from "../controllers/userController";
-import { createUserSchema, updateUserSchema } from "../schemas/userSchema";
-
-import { asyncHandler } from "../middleware/asyncHandler";
 import express from "express";
+import { createStudent, getStudents, getStudentById, updateStudent, deleteStudent } from "../controllers/studentController";
+import { createStudentSchema, updateStudentSchema } from "../schemas/studentSchema";
+import { asyncHandler } from "../middleware/asyncHandler";
 import { validate } from "../middleware/validation";
 
 const router = express.Router();
 
 /**
  * @swagger
- * /api/users:
+ * /api/students:
  *   post:
- *     summary: Create a new user
- *     tags: [Users]
+ *     summary: Create a new student
+ *     tags: [Students]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             $ref: '#/components/schemas/Student'
  *           example:
- *             name: "jane"
- *             role: "student"
- *             password: "studentPassword"
- *             email: "jane.doe@example.com"
- *             tcNo: "12345678901"
+ *             studentNumber: "20250001"
+ *             enrollmentYear: 2025
+ *             gpa: 3.32
+ *             userId: "some-user-id"
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: Student created successfully
  *       400:
  *         description: Bad request - Invalid input data
  *       500:
  *         description: Internal server error
  */
-
-router.post("/", validate(createUserSchema), asyncHandler(createUser));
+router.post("/", validate(createStudentSchema), asyncHandler(createStudent));
 
 /**
  * @swagger
- * /api/users:
+ * /api/students:
  *   get:
- *     summary: Get all users with pagination
- *     tags: [Users]
+ *     summary: Get all students with pagination
+ *     tags: [Students]
  *     parameters:
  *       - in: query
  *         name: page
@@ -60,7 +57,7 @@ router.post("/", validate(createUserSchema), asyncHandler(createUser));
  *         name: sortBy
  *         schema:
  *           type: string
- *           enum: [id, email, createdAt, updatedAt]
+ *           enum: [id, studentNumber, createdAt, updatedAt]
  *           default: createdAt
  *       - in: query
  *         name: sortOrder
@@ -70,20 +67,20 @@ router.post("/", validate(createUserSchema), asyncHandler(createUser));
  *           default: desc
  *     responses:
  *       200:
- *         description: List of users retrieved successfully
+ *         description: List of students retrieved successfully
  *       400:
  *         description: Bad request - Invalid query parameters
  *       500:
  *         description: Internal server error
  */
-router.get("/", asyncHandler(getUsers));
+router.get("/", asyncHandler(getStudents));
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/students/{id}:
  *   get:
- *     summary: Get a user by id
- *     tags: [Users]
+ *     summary: Get a student by id
+ *     tags: [Students]
  *     parameters:
  *       - in: path
  *         name: id
@@ -92,20 +89,20 @@ router.get("/", asyncHandler(getUsers));
  *           type: string
  *     responses:
  *       200:
- *         description: User retrieved successfully
+ *         description: Student retrieved successfully
  *       404:
- *         description: User not found
+ *         description: Student not found
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", asyncHandler(getUserById));
+router.get("/:id", asyncHandler(getStudentById));
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/students/{id}:
  *   put:
- *     summary: Update a user by id
- *     tags: [Users]
+ *     summary: Update a student by id
+ *     tags: [Students]
  *     parameters:
  *       - in: path
  *         name: id
@@ -117,28 +114,28 @@ router.get("/:id", asyncHandler(getUserById));
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             $ref: '#/components/schemas/Student'
  *           example:
- *             email: "updated@example.com"
- *             tcNo: "12345678901"
+ *             gpa: 3.75
+ *             enrollmentYear: 2025
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: Student updated successfully
  *       400:
  *         description: Bad request - Invalid input data
  *       404:
- *         description: User not found
+ *         description: Student not found
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", validate(updateUserSchema), asyncHandler(updateUser));
+router.put("/:id", validate(updateStudentSchema), asyncHandler(updateStudent));
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/students/{id}:
  *   delete:
- *     summary: Delete a user by id
- *     tags: [Users]
+ *     summary: Delete a student by id
+ *     tags: [Students]
  *     parameters:
  *       - in: path
  *         name: id
@@ -147,14 +144,12 @@ router.put("/:id", validate(updateUserSchema), asyncHandler(updateUser));
  *           type: string
  *     responses:
  *       200:
- *         description: User deleted successfully
+ *         description: Student deleted successfully
  *       404:
- *         description: User not found
+ *         description: Student not found
  *       500:
  *         description: Internal server error
  */
-router.delete("/:id", asyncHandler(deleteUser));
+router.delete("/:id", asyncHandler(deleteStudent));
 
 export default router;
-
-
