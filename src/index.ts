@@ -14,6 +14,7 @@ import studentRoutes from './routes/studentRoutes';
 import departmentRoutes from './routes/departmentRoutes'
 import courseRoutes from './routes/courseRoutes'
 import courseOfferingRoutes from './routes/course-offeringRoutes'
+import chatRoutes from './routes/chatRoutes'
 dotenv.config();
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/students', studentRoutes)
 app.use('/api/departments', departmentRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/course-offerings', courseOfferingRoutes)
+app.use('/api/chat', chatRoutes)
 
 app.use('*', (req, res) => {
   res.status(404).json({

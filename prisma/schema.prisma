@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // Example: postgresql://admin:admin_password@localhost:5432/note_verse_db
 }
 
 // ========================================
