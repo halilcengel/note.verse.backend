@@ -1,7 +1,8 @@
-import express from "express";
-import { createStudent, getStudents, getStudentById, updateStudent, deleteStudent } from "../controllers/studentController";
+import { createStudent, deleteStudent, getStudentById, getStudentByUserId, getStudentCourses, getStudentEnrollments, getStudents, updateStudent } from "../controllers/studentController";
 import { createStudentSchema, updateStudentSchema } from "../schemas/studentSchema";
+
 import { asyncHandler } from "../middleware/asyncHandler";
+import express from "express";
 import { validate } from "../middleware/validation";
 
 const router = express.Router();
@@ -99,6 +100,27 @@ router.get("/:id", asyncHandler(getStudentById));
 
 /**
  * @swagger
+ * /api/students/user/{userId}:
+ *   get:
+ *     summary: Get a student by user id
+ *     tags: [Students]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Student retrieved successfully
+ *       404:
+ *         description: Student not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/user/:userId", asyncHandler(getStudentByUserId));
+/**
+ * @swagger
  * /api/students/{id}:
  *   put:
  *     summary: Update a student by id
@@ -151,5 +173,50 @@ router.put("/:id", validate(updateStudentSchema), asyncHandler(updateStudent));
  *         description: Internal server error
  */
 router.delete("/:id", asyncHandler(deleteStudent));
+
+
+/**
+ * @swagger
+ * /api/students/{id}/courses:
+ *   get:
+ *     summary: Get a student's courses by id
+ *     tags: [Students]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Courses retrieved successfully
+ *       404:
+ *         description: Courses not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id/courses", asyncHandler(getStudentCourses));
+
+/**
+ * @swagger
+ * /api/students/{id}/enrollments:
+ *   get:
+ *     summary: Get a student's enrollments by id
+ *     tags: [Students]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Enrollments retrieved successfully
+ *       404:
+ *         description: Enrollments not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id/enrollments", asyncHandler(getStudentEnrollments));
 
 export default router;

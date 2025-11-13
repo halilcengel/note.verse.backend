@@ -11,6 +11,7 @@ const createUserSchema = z.object({
 const updateUserSchema = z.object({
   email: z.string().email().optional(),
   tcNo: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
 });
 
 export { createUserSchema, updateUserSchema };
