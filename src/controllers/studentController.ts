@@ -37,7 +37,29 @@ const getStudentByUserId = async (req: Request, res: Response) => {
 
 const getStudentCourses = async (req: Request, res: Response) => {
   const courses = await prisma.course.findMany({
-    where: { courseOfferings: { some: { enrollments: { some: { studentId: req.params.id } } } } },
+    include: {
+      courseOfferings: {
+        include: {
+          course: true,
+          teacher: {
+            include: {
+              user: true,
+            },
+          },
+          schedules: true,
+          enrollments: {
+            include: { grades: true },
+          },
+        },
+      },
+    },
+    where: {
+      courseOfferings: {
+        some: {
+          enrollments: { some: { studentId: req.params.id } },
+        },
+      },
+    },
   });
   if (!courses) {
     return res
@@ -59,95 +81,50 @@ const getStudentEnrollments = async (req: Request, res: Response) => {
   return res.status(200).json(enrollments);
 };
 
-// Get student's course offerings (with full details)
-const getStudentCourseOfferings = async (req: Request, res: Response) => {
-  const courseOfferings = await prisma.courseOffering.findMany({
-    where: {
-      enrollments: {
-        some: {
-          studentId: req.params.id,
-          status: "active"
-        }
-      }
-    },
+const getStudentCourseBySemester = async (req: Request, res: Response) => {
+  const courses = await prisma.course.findMany({
     include: {
-      course: {
+      courseOfferings: {
         include: {
-          department: true
-        }
+          course: true,
+          teacher: {
+            include: {
+              user: true,
+            },
+          },
+          schedules: true,
+          enrollments: {
+            include: { grades: true },
+          },
+        },
       },
-      teacher: {
-        include: {
-          user: true,
-          department: true
-        }
-      },
-      schedules: true,
-      enrollments: {
-        where: { studentId: req.params.id }
-      }
     },
-    orderBy: {
-      createdAt: 'desc'
-    }
+    where: {
+      courseOfferings: {
+        some: {
+          enrollments: {
+            some: { studentId: req.params.id },
+          },
+          semester: req.params.semester,
+          academicYear: req.params.academicYear,
+        },
+      },
+    },
   });
 
-  return res.status(200).json(courseOfferings);
+  if (!courses.length) {
+    return res
+      .status(404)
+      .json({ status: "error", message: "Courses not found" });
+  }
+  return res.status(200).json(courses);
 };
 
-// Get student's current semester course offerings
-const getStudentCurrentSemesterCourses = async (req: Request, res: Response) => {
-  const { semester, academicYear } = req.query;
-
-  if (!semester || !academicYear) {
-    return res.status(400).json({
-      status: "error",
-      message: "semester and academicYear query parameters are required"
-    });
-  }
-
+const getStudentCourseOfferings = async (req: Request, res: Response) => {
   const courseOfferings = await prisma.courseOffering.findMany({
-    where: {
-      semester: semester as string,
-      academicYear: academicYear as string,
-      enrollments: {
-        some: {
-          studentId: req.params.id,
-          status: "active"
-        }
-      }
-    },
-    include: {
-      course: {
-        include: {
-          department: true
-        }
-      },
-      teacher: {
-        include: {
-          user: true,
-          department: true
-        }
-      },
-      schedules: true,
-      enrollments: {
-        where: { studentId: req.params.id },
-        include: {
-          grades: true
-        }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
+    where: { enrollments: { some: { studentId: req.params.id } } },
   });
-
-  return res.status(200).json({
-    semester,
-    academicYear,
-    total: courseOfferings.length,
-    data: courseOfferings
-  });
+  return res.status(200).json(courseOfferings);
 };
 
 const getStudentById = async (req: Request, res: Response) => {
@@ -184,7 +161,7 @@ export {
   getStudentByUserId,
   getStudentCourses,
   getStudentCourseOfferings,
-  getStudentCurrentSemesterCourses,
+  getStudentCourseBySemester,
   getStudentEnrollments,
   updateStudent,
   deleteStudent,

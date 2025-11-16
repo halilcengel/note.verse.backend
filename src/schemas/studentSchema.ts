@@ -13,3 +13,16 @@ export const updateStudentSchema = z.object({
   enrollmentYear: z.number().int().min(1900).optional(),
   userId: z.string().optional(),
 });
+
+export const getStudentCourseBySemesterSchema = z.object({
+  semester: z
+    .enum(["Fall", "Spring", "Summer"])
+    .refine((val) => ["Fall", "Spring", "Summer"].includes(val), {
+      message: "Semester must be one of: Fall, Spring, Summer",
+    }),
+  academicYear: z
+    .string()
+    .regex(/^\d{4}-\d{4}$/, "Academic year must be in the format YYYY-YYYY")
+    .min(9, "Academic year seems invalid"),
+});
+

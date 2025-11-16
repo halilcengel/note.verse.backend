@@ -3,18 +3,21 @@ import {
   deleteStudent,
   getStudentById,
   getStudentByUserId,
-  getStudentCourses,
+  getStudentCourseBySemester,
   getStudentCourseOfferings,
-  getStudentCurrentSemesterCourses,
-  getStudentEnrollments,
+  getStudentCourses,
   getStudents,
-  updateStudent
+  updateStudent,
 } from "../controllers/studentController";
-import { createStudentSchema, updateStudentSchema } from "../schemas/studentSchema";
+import {
+  createStudentSchema,
+  getStudentCourseBySemesterSchema,
+  updateStudentSchema,
+} from "../schemas/studentSchema";
+import { validate, validateParams } from "../middleware/validation";
 
 import { asyncHandler } from "../middleware/asyncHandler";
 import express from "express";
-import { validate } from "../middleware/validation";
 
 const router = express.Router();
 
@@ -185,7 +188,6 @@ router.put("/:id", validate(updateStudentSchema), asyncHandler(updateStudent));
  */
 router.delete("/:id", asyncHandler(deleteStudent));
 
-
 /**
  * @swagger
  * /api/students/{id}/courses:
@@ -210,9 +212,9 @@ router.get("/:id/courses", asyncHandler(getStudentCourses));
 
 /**
  * @swagger
- * /api/students/{id}/course-offerings:
+ * /api/students/{id}/courses/semester/{semester}/{academicYear}:
  *   get:
- *     summary: Get a student's course offerings (enrolled courses with full details)
+ *     summary: Get a student's courses by semester and academic year
  *     tags: [Students]
  *     parameters:
  *       - in: path
@@ -220,35 +222,13 @@ router.get("/:id/courses", asyncHandler(getStudentCourses));
  *         required: true
  *         schema:
  *           type: string
- *     responses:
- *       200:
- *         description: Course offerings retrieved successfully
- *       404:
- *         description: Course offerings not found
- *       500:
- *         description: Internal server error
- */
-router.get("/:id/course-offerings", asyncHandler(getStudentCourseOfferings));
-
-/**
- * @swagger
- * /api/students/{id}/current-semester:
- *   get:
- *     summary: Get a student's current semester course offerings
- *     tags: [Students]
- *     parameters:
  *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *       - in: query
  *         name: semester
  *         required: true
  *         schema:
  *           type: string
  *           enum: [Fall, Spring, Summer]
- *       - in: query
+ *       - in: path
  *         name: academicYear
  *         required: true
  *         schema:
@@ -256,34 +236,18 @@ router.get("/:id/course-offerings", asyncHandler(getStudentCourseOfferings));
  *           pattern: '^\d{4}-\d{4}$'
  *     responses:
  *       200:
- *         description: Current semester courses retrieved successfully
- *       400:
- *         description: Bad request - Missing semester or academicYear
- *       500:
- *         description: Internal server error
- */
-router.get("/:id/current-semester", asyncHandler(getStudentCurrentSemesterCourses));
-
-/**
- * @swagger
- * /api/students/{id}/enrollments:
- *   get:
- *     summary: Get a student's enrollments by id
- *     tags: [Students]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Enrollments retrieved successfully
+ *         description: Courses retrieved successfully
  *       404:
- *         description: Enrollments not found
+ *         description: Courses not found
  *       500:
  *         description: Internal server error
  */
-router.get("/:id/enrollments", asyncHandler(getStudentEnrollments));
+router.get(
+  "/:id/courses/semester/:semester/:academicYear",
+  validateParams(getStudentCourseBySemesterSchema),
+  asyncHandler(getStudentCourseBySemester)
+);
+
 
 export default router;
+

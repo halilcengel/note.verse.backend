@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import { paginationSchema } from "../schemas/paginationSchema";
 import { prisma } from "../index";
 
@@ -15,7 +16,7 @@ const getCourses = async (req: Request, res: Response) => {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { [sortBy]: sortOrder },
-      include: { department: true } // ilişkili department bilgisi ile birlikte getirilebilir
+      include: { department: true }
     }),
     prisma.course.count(),
   ]);
