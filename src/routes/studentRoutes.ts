@@ -1,4 +1,15 @@
-import { createStudent, deleteStudent, getStudentById, getStudentByUserId, getStudentCourses, getStudentEnrollments, getStudents, updateStudent } from "../controllers/studentController";
+import {
+  createStudent,
+  deleteStudent,
+  getStudentById,
+  getStudentByUserId,
+  getStudentCourses,
+  getStudentCourseOfferings,
+  getStudentCurrentSemesterCourses,
+  getStudentEnrollments,
+  getStudents,
+  updateStudent
+} from "../controllers/studentController";
 import { createStudentSchema, updateStudentSchema } from "../schemas/studentSchema";
 
 import { asyncHandler } from "../middleware/asyncHandler";
@@ -196,6 +207,62 @@ router.delete("/:id", asyncHandler(deleteStudent));
  *         description: Internal server error
  */
 router.get("/:id/courses", asyncHandler(getStudentCourses));
+
+/**
+ * @swagger
+ * /api/students/{id}/course-offerings:
+ *   get:
+ *     summary: Get a student's course offerings (enrolled courses with full details)
+ *     tags: [Students]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Course offerings retrieved successfully
+ *       404:
+ *         description: Course offerings not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id/course-offerings", asyncHandler(getStudentCourseOfferings));
+
+/**
+ * @swagger
+ * /api/students/{id}/current-semester:
+ *   get:
+ *     summary: Get a student's current semester course offerings
+ *     tags: [Students]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: semester
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [Fall, Spring, Summer]
+ *       - in: query
+ *         name: academicYear
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: '^\d{4}-\d{4}$'
+ *     responses:
+ *       200:
+ *         description: Current semester courses retrieved successfully
+ *       400:
+ *         description: Bad request - Missing semester or academicYear
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id/current-semester", asyncHandler(getStudentCurrentSemesterCourses));
 
 /**
  * @swagger

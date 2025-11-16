@@ -59,6 +59,97 @@ const getStudentEnrollments = async (req: Request, res: Response) => {
   return res.status(200).json(enrollments);
 };
 
+// Get student's course offerings (with full details)
+const getStudentCourseOfferings = async (req: Request, res: Response) => {
+  const courseOfferings = await prisma.courseOffering.findMany({
+    where: {
+      enrollments: {
+        some: {
+          studentId: req.params.id,
+          status: "active"
+        }
+      }
+    },
+    include: {
+      course: {
+        include: {
+          department: true
+        }
+      },
+      teacher: {
+        include: {
+          user: true,
+          department: true
+        }
+      },
+      schedules: true,
+      enrollments: {
+        where: { studentId: req.params.id }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  return res.status(200).json(courseOfferings);
+};
+
+// Get student's current semester course offerings
+const getStudentCurrentSemesterCourses = async (req: Request, res: Response) => {
+  const { semester, academicYear } = req.query;
+
+  if (!semester || !academicYear) {
+    return res.status(400).json({
+      status: "error",
+      message: "semester and academicYear query parameters are required"
+    });
+  }
+
+  const courseOfferings = await prisma.courseOffering.findMany({
+    where: {
+      semester: semester as string,
+      academicYear: academicYear as string,
+      enrollments: {
+        some: {
+          studentId: req.params.id,
+          status: "active"
+        }
+      }
+    },
+    include: {
+      course: {
+        include: {
+          department: true
+        }
+      },
+      teacher: {
+        include: {
+          user: true,
+          department: true
+        }
+      },
+      schedules: true,
+      enrollments: {
+        where: { studentId: req.params.id },
+        include: {
+          grades: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  return res.status(200).json({
+    semester,
+    academicYear,
+    total: courseOfferings.length,
+    data: courseOfferings
+  });
+};
+
 const getStudentById = async (req: Request, res: Response) => {
   const student = await prisma.student.findUnique({
     where: { id: req.params.id },
@@ -92,6 +183,8 @@ export {
   getStudentById,
   getStudentByUserId,
   getStudentCourses,
+  getStudentCourseOfferings,
+  getStudentCurrentSemesterCourses,
   getStudentEnrollments,
   updateStudent,
   deleteStudent,

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { paginationSchema } from "../schemas/paginationSchema";
+import { courseOfferingQuerySchema } from "../schemas/courseOfferingQuerySchema";
 import { prisma } from "../index";
 
 const createCourseOffering = async (req: Request, res: Response) => {
@@ -18,8 +19,19 @@ const getCourseOfferings = async (req: Request, res: Response) => {
       take: limit,
       orderBy: { [sortBy]: sortOrder },
       include: {
-        course: true,
-        teacher: true
+        course: {
+          include: {
+            department: true
+          }
+        },
+        teacher: {
+          include: {
+            user: true,
+            department: true
+          }
+        },
+        enrollments: true,
+        schedules: true
       }
     }),
     prisma.courseOffering.count()
@@ -29,6 +41,57 @@ const getCourseOfferings = async (req: Request, res: Response) => {
     total: totalCount,
     page,
     limit,
+    data: courseOfferings
+  });
+};
+
+// New endpoint: Get course offerings by semester and academic year
+const getCourseOfferingsBySemester = async (req: Request, res: Response) => {
+  const { page, limit, sortBy, sortOrder, semester, academicYear } =
+    courseOfferingQuerySchema.parse(req.query);
+
+  // Build filter object
+  const where: any = {};
+
+  if (semester) {
+    where.semester = semester;
+  }
+
+  if (academicYear) {
+    where.academicYear = academicYear;
+  }
+
+  const [courseOfferings, totalCount] = await Promise.all([
+    prisma.courseOffering.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { [sortBy]: sortOrder },
+      include: {
+        course: {
+          include: {
+            department: true
+          }
+        },
+        teacher: {
+          include: {
+            user: true,
+            department: true
+          }
+        },
+        enrollments: true,
+        schedules: true
+      }
+    }),
+    prisma.courseOffering.count({ where })
+  ]);
+
+  res.status(200).json({
+    total: totalCount,
+    page,
+    limit,
+    semester,
+    academicYear,
     data: courseOfferings
   });
 };
@@ -68,4 +131,11 @@ const deleteCourseOffering = async (req: Request, res: Response) => {
   res.status(200).json(courseOffering);
 };
 
-export { createCourseOffering, getCourseOfferings, getCourseOfferingById, updateCourseOffering, deleteCourseOffering};
+export {
+  createCourseOffering,
+  getCourseOfferings,
+  getCourseOfferingById,
+  getCourseOfferingsBySemester,
+  updateCourseOffering,
+  deleteCourseOffering
+};

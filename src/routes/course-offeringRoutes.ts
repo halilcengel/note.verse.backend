@@ -1,5 +1,12 @@
 import express from "express";
-import { createCourseOffering, getCourseOfferings, getCourseOfferingById, updateCourseOffering, deleteCourseOffering } from "../controllers/course-offeringController";
+import {
+  createCourseOffering,
+  getCourseOfferings,
+  getCourseOfferingById,
+  getCourseOfferingsBySemester,
+  updateCourseOffering,
+  deleteCourseOffering
+} from "../controllers/course-offeringController";
 import { createCourseOfferingSchema, updateCourseOfferingSchema} from "../schemas/course-offeringSchema";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { validate } from "../middleware/validation";
@@ -75,6 +82,60 @@ router.post( "/", validate(createCourseOfferingSchema), asyncHandler(createCours
  *         description: Internal server error
  */
 router.get("/", asyncHandler(getCourseOfferings));
+
+/**
+ * @swagger
+ * /api/course-offerings/semester/filter:
+ *   get:
+ *     summary: Get course offerings filtered by semester and academic year
+ *     tags: [CourseOfferings]
+ *     parameters:
+ *       - in: query
+ *         name: semester
+ *         schema:
+ *           type: string
+ *           enum: [Fall, Spring, Summer]
+ *         description: Semester to filter by
+ *       - in: query
+ *         name: academicYear
+ *         schema:
+ *           type: string
+ *           pattern: '^\d{4}-\d{4}$'
+ *         description: Academic year to filter by (format YYYY-YYYY)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, semester, academicYear, createdAt, updatedAt]
+ *           default: createdAt
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *     responses:
+ *       200:
+ *         description: Filtered course offerings retrieved successfully
+ *       400:
+ *         description: Bad request - Invalid query parameters
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/semester/filter", asyncHandler(getCourseOfferingsBySemester));
 
 /**
  * @swagger

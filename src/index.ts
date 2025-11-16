@@ -15,6 +15,7 @@ import departmentRoutes from './routes/departmentRoutes'
 import courseRoutes from './routes/courseRoutes'
 import courseOfferingRoutes from './routes/course-offeringRoutes'
 import chatRoutes from './routes/chatRoutes'
+import authRoutes from './routes/authRoutes'
 dotenv.config();
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/students', studentRoutes)
